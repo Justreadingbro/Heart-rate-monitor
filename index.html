@@ -2,17 +2,23 @@
 <html>
 <head>
   <title>Heart Rate Monitor</title>
-</head>
-<body>
-  <h1>Heart Rate Data</h1>
-  <p id="heart-rate">Loading...</p>
   <script>
-    async function fetchHeartRate() {
-      const response = await fetch('http://192.168.4.1/');
-      const text = await response.text();
-      document.getElementById('heart-rate').innerHTML = text;
+    function updateData() {
+      fetch('http://192.168.4.1/data')  // Update with your ESP32 IP address
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
+          document.getElementById('rawValue').innerText = data.rawValue;
+        })
+        .catch(error => console.error('Error fetching data:', error));
+      setTimeout(updateData, 500);
     }
-    setInterval(fetchHeartRate, 1000);
+    window.onload = updateData;
   </script>
+</head>
+<body style="font-family: Arial; text-align: center;">
+  <h1>Heart Rate Monitor</h1>
+  <h2>Current Heart Rate: <span id="heartRate">Loading...</span></h2>
+  <h3>Raw Sensor Value: <span id="rawValue">Loading...</span></h3>
 </body>
 </html>
