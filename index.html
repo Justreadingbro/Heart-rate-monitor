@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heart Rate Monitor</title>
   <script>
     function updateData() {
-      fetch('https://6622-2405-201-a805-881b-9533-69fb-eec8-280f.ngrok-free.app/data')
+      // Replace with the IP address of your ESP32 device
+      fetch('http://192.168.4.1/data')
         .then(response => response.json())
         .then(data => {
           document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
           document.getElementById('rawValue').innerText = data.rawValue;
         })
         .catch(error => console.error('Error fetching data:', error));
-      setTimeout(updateData, 1000);  // Update data every 1 second
+
+      setTimeout(updateData, 500);  // Update every 500 ms
     }
-    window.onload = updateData;
+
+    window.onload = updateData;  // Start updating when the page loads
   </script>
 </head>
-<body style="font-family: Arial; text-align: center;">
+<body style="font-family: Arial, sans-serif; text-align: center;">
   <h1>Heart Rate Monitor</h1>
   <h2>Current Heart Rate: <span id="heartRate">Loading...</span></h2>
   <h3>Raw Sensor Value: <span id="rawValue">Loading...</span></h3>
