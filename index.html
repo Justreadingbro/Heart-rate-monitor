@@ -7,7 +7,7 @@
   <script>
     function updateData() {
       // Replace with the IP address of your ESP32 device
-      fetch('http://192.168.4.1/data')
+      fetch('http://192.168.29.247/data')  // Change this to your ESP32 IP
         .then(response => response.json())
         .then(data => {
           document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
