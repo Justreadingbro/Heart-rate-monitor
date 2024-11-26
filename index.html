@@ -4,7 +4,7 @@
   <title>Heart Rate Monitor</title>
   <script>
     function updateData() {
-      fetch('https://6622-2405-201-a805-881b-9533-69fb-eec8-280f.ngrok-free.app/data')  // Use your ngrok URL
+      fetch('https://6622-2405-201-a805-881b-9533-69fb-eec8-280f.ngrok-free.app/data')
         .then(response => response.json())
         .then(data => {
           document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
