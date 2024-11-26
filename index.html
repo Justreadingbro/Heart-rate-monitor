@@ -8,7 +8,7 @@
   <p id="heart-rate">Loading...</p>
   <script>
     async function fetchHeartRate() {
-      const response = await fetch('http://your_esp32_ip_address/');
+      const response = await fetch('http://192.168.4.1/');
       const text = await response.text();
       document.getElementById('heart-rate').innerHTML = text;
     }
