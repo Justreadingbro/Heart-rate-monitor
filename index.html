@@ -4,7 +4,7 @@
   <title>Heart Rate Monitor</title>
   <script>
     function updateData() {
-      fetch('http://192.168.4.1/data')  // Update with your ESP32 IP address
+      fetch('https://6622-2405-201-a805-881b-9533-69fb-eec8-280f.ngrok-free.app/data')  // Use your ngrok URL
         .then(response => response.json())
         .then(data => {
           document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
