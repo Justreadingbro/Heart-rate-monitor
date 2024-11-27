@@ -6,15 +6,19 @@
   <title>Heart Rate Monitor</title>
   <script>
     function updateData() {
-      fetch('http://192.168.186.188/data')  // Change this to your ESP32 IP
+      const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
+      const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?results=1`;
+
+      fetch(url)
         .then(response => response.json())
         .then(data => {
-          document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
-          document.getElementById('rawValue').innerText = data.rawValue;
+          const feeds = data.feeds[0];
+          document.getElementById('heartRate').innerText = feeds.field1 + ' BPM';
+          document.getElementById('rawValue').innerText = feeds.field2;
         })
         .catch(error => console.error('Error fetching data:', error));
 
-      setTimeout(updateData, 1000);  // Update every 1000 ms (1 second)
+      setTimeout(updateData, 5000);  // Update every 5 seconds
     }
 
     window.onload = updateData;  // Start updating when the page loads
