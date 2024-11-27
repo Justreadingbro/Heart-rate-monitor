@@ -7,7 +7,8 @@
   <script>
     function updateData() {
       const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
-      const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?results=1`;
+      const apiKey = "WPQAF4KMIF5SNCGD";  // Replace with your actual ThingSpeak Read API Key if needed
+      const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=1`;
 
       fetch(url)
         .then(response => response.json())
