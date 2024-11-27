@@ -6,7 +6,7 @@
   <title>Heart Rate Monitor</title>
   <script>
     function updateData() {
-      fetch('http://192.168.29.247/data')  // Change this to your ESP32 IP
+      fetch('http://192.168.186.188/data')  // Change this to your ESP32 IP
         .then(response => response.json())
         .then(data => {
           document.getElementById('heartRate').innerText = data.heartRate + ' BPM';
