@@ -22,7 +22,35 @@
       setTimeout(updateData, 5000);  // Update every 5 seconds
     }
 
-    window.onload = updateData;  // Start updating when the page loads
+    function sendData() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var latitude = position.coords.latitude;
+          var longitude = position.coords.longitude;
+
+          // Send location data to the ESP32
+          var xhr = new XMLHttpRequest();
+          var url = "http://<ESP32_IP_ADDRESS>/update";
+          xhr.open("POST", url, true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              var json = JSON.parse(xhr.responseText);
+              console.log(json);
+            }
+          };
+          var data = JSON.stringify({"latitude": latitude, "longitude": longitude});
+          xhr.send(data);
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    window.onload = function() {
+      updateData();  // Start updating when the page loads
+      sendData();  // Send location data when the page loads
+    };
   </script>
 </head>
 <body style="font-family: Arial, sans-serif; text-align: center;">
