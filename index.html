@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heart Rate Monitor</title>
   <script>
+    // Function to fetch and display heart rate data from ThingSpeak
     function updateData() {
       const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
       const apiKey = "WPQAF4KMIF5SNCGD";  // Replace with your actual ThingSpeak Read API Key if needed
@@ -22,6 +23,7 @@
       setTimeout(updateData, 5000);  // Update every 5 seconds
     }
 
+    // Function to send the GPS location data to ESP32
     function sendData() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -30,7 +32,7 @@
 
           // Send location data to the ESP32
           var xhr = new XMLHttpRequest();
-          var url = "http://" + location.hostname + ":80/update";
+          var url = "http://192.168.3.188/update";  // Replace <ESP32_IP_ADDRESS> with your ESP32 IP address
           xhr.open("POST", url, true);
           xhr.setRequestHeader("Content-Type", "application/json");
           xhr.onreadystatechange = function () {
@@ -41,15 +43,18 @@
           };
           var data = JSON.stringify({"latitude": latitude, "longitude": longitude});
           xhr.send(data);
+        }, function(error) {
+          console.error("Error fetching location: ", error);
         });
       } else {
         alert("Geolocation is not supported by this browser.");
       }
     }
 
+    // Start updating and sending data when the page loads
     window.onload = function() {
-      updateData();  // Start updating when the page loads
-      sendData();  // Send location data when the page loads
+      updateData();  // Start updating heart rate data when the page loads
+      sendData();  // Start sending location data when the page loads
     };
   </script>
 </head>
