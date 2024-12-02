@@ -30,7 +30,7 @@
 
           // Send location data to the ESP32
           var xhr = new XMLHttpRequest();
-          var url = "http://192.168.3.188/update";
+          var url = "http://" + location.hostname + ":80/update";
           xhr.open("POST", url, true);
           xhr.setRequestHeader("Content-Type", "application/json");
           xhr.onreadystatechange = function () {
