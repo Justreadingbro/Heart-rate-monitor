@@ -18,7 +18,11 @@
           document.getElementById('heartRate').innerText = feeds.field1 + ' BPM';
           document.getElementById('rawValue').innerText = feeds.field2;
         })
-        .catch(error => console.error('Error fetching data:', error));
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          document.getElementById('heartRate').innerText = 'Error';
+          document.getElementById('rawValue').innerText = 'Error';
+        });
 
       setTimeout(updateData, 5000);  // Update every 5 seconds
     }
@@ -45,6 +49,7 @@
           xhr.send(data);
         }, function(error) {
           console.error("Error fetching location: ", error);
+          alert("Could not get location. Please try again.");
         });
       } else {
         alert("Geolocation is not supported by this browser.");
@@ -57,10 +62,51 @@
       sendData();  // Start sending location data when the page loads
     };
   </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    h1 {
+      color: #333;
+      margin-top: 20px;
+    }
+
+    h2 {
+      color: #4CAF50;
+    }
+
+    h3 {
+      color: #FF5722;
+    }
+
+    #heartRate, #rawValue {
+      font-size: 2em;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .alert {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center;">
-  <h1>Heart Rate Monitor</h1>
-  <h2>Current Heart Rate: <span id="heartRate">Loading...</span></h2>
-  <h3>Raw Sensor Value: <span id="rawValue">Loading...</span></h3>
+<body>
+  <div class="container">
+    <h1>Heart Rate Monitor</h1>
+    <h2>Current Heart Rate: <span id="heartRate">Loading...</span></h2>
+    <h3>Raw Sensor Value: <span id="rawValue">Loading...</span></h3>
+    <div id="error" class="alert"></div>
+  </div>
 </body>
 </html>
