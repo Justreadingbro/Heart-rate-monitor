@@ -1,124 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heart Rate Monitor</title>
-  <script>
-    // Function to fetch and display heart rate data from ThingSpeak
-    function updateData() {
-      const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
-      const apiKey = "WPQAF4KMIF5SNCGD";  // Replace with your actual ThingSpeak Read API Key if needed
-      const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=1`;
-
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          const feeds = data.feeds[0];
-          document.getElementById('heartRate').innerText = feeds.field1 + ' BPM';
-          document.getElementById('rawValue').innerText = feeds.field2;
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
-          document.getElementById('heartRate').innerText = 'Error';
-          document.getElementById('rawValue').innerText = 'Error';
-        });
-
-      setTimeout(updateData, 5000);  // Update every 5 seconds
-    }
-
-    // Function to send the GPS location data to ESP32
-    function sendData() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          var latitude = position.coords.latitude;
-          var longitude = position.coords.longitude;
-
-          // Check if the page is loaded over HTTPS or HTTP
-          var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
-          apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
-
-          // Send location data to the ESP32
-          var xhr = new XMLHttpRequest();
-          xhr.open("POST", apiEndpoint, true);
-          xhr.setRequestHeader("Content-Type", "application/json");
-          xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              var json = JSON.parse(xhr.responseText);
-              console.log(json);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Rate Monitor - Location Sender</title>
+    <script>
+        // Function to get the user's location and send it to the ESP32
+        function getLocationAndSendData() {
+            if (navigator.geolocation) {
+                // Request the user's current position
+                navigator.geolocation.getCurrentPosition(sendLocationData, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
             }
-          };
-          var data = JSON.stringify({"latitude": latitude, "longitude": longitude});
-          xhr.send(data);
-        }, function(error) {
-          console.error("Error fetching location: ", error);
-          alert("Could not get location. Please try again.");
-        });
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
-    }
+        }
 
-    // Function to simulate sending an alert SMS using Twilio (Only for simulation, no actual SMS sent here)
-    function sendTwilioSMS(number, heartRate, latitude, longitude) {
-      var message = "Alert! Heart rate is high: " + heartRate + " bpm. Location: Lat: " + latitude + ", Lon: " + longitude;
+        // Function to send the location data to the ESP32
+        function sendLocationData(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
 
-      // Log the message instead of sending it via Twilio
-      console.log("To: " + number);
-      console.log("Message: " + message);
-    }
+            const data = JSON.stringify({
+                latitude: latitude,
+                longitude: longitude
+            });
 
-    // Start updating and sending data when the page loads
-    window.onload = function() {
-      updateData();  // Start updating heart rate data when the page loads
-      sendData();  // Start sending location data when the page loads
-    };
-  </script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-    }
+            // Replace this URL with the IP address of your ESP32
+            var url = "http://192.168.3.188/update"; // HTTP for local connection, not HTTPS
 
-    h1 {
-      color: #333;
-      margin-top: 20px;
-    }
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
-    h2 {
-      color: #4CAF50;
-    }
+            // Handle the response when data is sent
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log("Data sent successfully");
+                    alert("Location sent successfully!");
+                } else {
+                    console.error("Error sending data: " + xhr.status);
+                    alert("Error sending location data.");
+                }
+            };
 
-    h3 {
-      color: #FF5722;
-    }
+            xhr.onerror = function () {
+                console.error("Request failed");
+                alert("Request failed. Check your connection.");
+            };
 
-    #heartRate, #rawValue {
-      font-size: 2em;
-      color: #000;
-      font-weight: bold;
-    }
+            // Send the data to the ESP32
+            xhr.send(data);
+        }
 
-    .container {
-      padding: 20px;
-      margin-top: 30px;
-    }
+        // Function to handle errors in getting geolocation
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
 
-    .alert {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+        // Call the function when the page is loaded
+        window.onload = function () {
+            // Automatically trigger location request after page loads
+            getLocationAndSendData();
+        };
+    </script>
 </head>
 <body>
-  <div class="container">
     <h1>Heart Rate Monitor</h1>
-    <h2>Current Heart Rate: <span id="heartRate">Loading...</span></h2>
-    <h3>Raw Sensor Value: <span id="rawValue">Loading...</span></h3>
-    <div id="error" class="alert"></div>
-  </div>
+    <p>Sending location data to ESP32...</p>
+
+    <p>Waiting for your location...</p>
+
+    <button onclick="getLocationAndSendData()">Send Location Now</button>
 </body>
 </html>
