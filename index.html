@@ -34,10 +34,13 @@
           var latitude = position.coords.latitude;
           var longitude = position.coords.longitude;
 
+          // Check if the page is loaded over HTTPS or HTTP
+          var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
+          apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
+
           // Send location data to the ESP32
           var xhr = new XMLHttpRequest();
-          var url = "http://192.168.3.188/update";  // Replace <ESP32_IP_ADDRESS> with your ESP32 IP address
-          xhr.open("POST", url, true);
+          xhr.open("POST", apiEndpoint, true);
           xhr.setRequestHeader("Content-Type", "application/json");
           xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -54,6 +57,15 @@
       } else {
         alert("Geolocation is not supported by this browser.");
       }
+    }
+
+    // Function to simulate sending an alert SMS using Twilio (Only for simulation, no actual SMS sent here)
+    function sendTwilioSMS(number, heartRate, latitude, longitude) {
+      var message = "Alert! Heart rate is high: " + heartRate + " bpm. Location: Lat: " + latitude + ", Lon: " + longitude;
+
+      // Log the message instead of sending it via Twilio
+      console.log("To: " + number);
+      console.log("Message: " + message);
     }
 
     // Start updating and sending data when the page loads
