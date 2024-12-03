@@ -41,11 +41,9 @@
         .then(data => {
           const feeds = data.feeds[0];
           const heartRate = feeds.field1;
-          const rawValue = feeds.field2;
           
-          // Update heart rate and raw value on the page
+          // Update heart rate on the page
           document.getElementById('heartRate').innerText = heartRate + ' BPM';
-          document.getElementById('rawValue').innerText = rawValue;
 
           // Display alert if heart rate is above 120 or below 50
           if (heartRate > 120 || heartRate < 50) {
@@ -57,7 +55,6 @@
         .catch(error => {
           console.error('Error fetching data:', error);
           document.getElementById('heartRate').innerText = 'Error';
-          document.getElementById('rawValue').innerText = 'Error';
         });
 
       setTimeout(updateData, 5000);  // Update every 5 seconds
@@ -129,7 +126,6 @@
     <strong>ALERT: Heart rate is abnormal!</strong>
   </div>
   <p>Heart Rate: <span id="heartRate">Loading...</span></p>
-  <p>Raw Value: <span id="rawValue">Loading...</span></p>
   <div id="location">
     <h2>Your Location:</h2>
     <p id="latitude"></p>
