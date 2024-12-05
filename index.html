@@ -30,10 +30,9 @@
   </style>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
-    // Function to fetch and display heart rate data from ThingSpeak
     function updateData() {
-      const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
-      const apiKey = "WPQAF4KMIF5SNCGD";  // Replace with your actual ThingSpeak Read API Key if needed
+      const channelId = "2765312";
+      const apiKey = "WPQAF4KMIF5SNCGD";
       const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=1`;
 
       fetch(url)
@@ -43,15 +42,13 @@
           const heartRate = feeds.field1;
           const rawValue = feeds.field2;
           
-          // Update heart rate and raw value on the page
           document.getElementById('heartRate').innerText = heartRate + ' BPM';
           document.getElementById('rawValue').innerText = rawValue;
 
-          // Display alert if heart rate is above 120 or below 50
           if (heartRate > 80 || heartRate < 50) {
-            document.getElementById('alert').style.display = 'block';  // Show alert
+            document.getElementById('alert').style.display = 'block';
           } else {
-            document.getElementById('alert').style.display = 'none';  // Hide alert
+            document.getElementById('alert').style.display = 'none';
           }
         })
         .catch(error => {
@@ -60,16 +57,13 @@
           document.getElementById('rawValue').innerText = 'Error';
         });
 
-      setTimeout(updateData, 5000);  // Update every 5 seconds
+      setTimeout(updateData, 5000);
     }
 
-    // Function to send the GPS location data to ESP32
     function sendData(latitude, longitude) {
-      // Check if the page is loaded over HTTPS or HTTP
       var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
-      apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
+      apiEndpoint += "192.168.3.188/update";
 
-      // Send location data to the ESP32
       var xhr = new XMLHttpRequest();
       xhr.open("POST", apiEndpoint, true);
       xhr.setRequestHeader("Content-Type", "application/json");
@@ -83,7 +77,6 @@
       xhr.send(JSON.stringify({ latitude: latitude, longitude: longitude }));
     }
 
-    // Function to get the GPS location and display it on the map
     function getLocationAndUpdateMap() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -106,7 +99,6 @@
             .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
             .openPopup();
 
-          // Send location data to ESP32
           sendData(latitude, longitude);
         }, function(error) {
           console.error("Error getting GPS location:", error);
@@ -116,7 +108,6 @@
       }
     }
 
-    // Start updating data and sending location when the page loads
     window.onload = function() {
       updateData();
       getLocationAndUpdateMap();
