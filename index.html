@@ -48,7 +48,7 @@
           document.getElementById('rawValue').innerText = rawValue;
 
           // Display alert if heart rate is above 120 or below 50
-          if (heartRate > 70 || heartRate < 50) {
+          if (heartRate > 80 || heartRate < 50) {
             document.getElementById('alert').style.display = 'block';  // Show alert
           } else {
             document.getElementById('alert').style.display = 'none';  // Hide alert
@@ -64,23 +64,24 @@
     }
 
     // Function to send the GPS location data to ESP32
-   function sendData(latitude, longitude) {
-  var apiEndpoint = "http://192.168.3.188/update"; // Ensure this is HTTP if the server isn't HTTPS
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", apiEndpoint, true);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        console.log("Location data sent successfully");
-      } else {
-        console.error("Error sending location data");
-      }
-    }
-  };
-  xhr.send(JSON.stringify({ latitude: latitude, longitude: longitude }));
-}
+    function sendData(latitude, longitude) {
+      // Check if the page is loaded over HTTPS or HTTP
+      var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
+      apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
 
+      // Send location data to the ESP32
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", apiEndpoint, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log("Location data sent successfully");
+        } else {
+          console.error("Error sending location data");
+        }
+      };
+      xhr.send(JSON.stringify({ latitude: latitude, longitude: longitude }));
+    }
 
     // Function to get the GPS location and display it on the map
     function getLocationAndUpdateMap() {
