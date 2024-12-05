@@ -58,7 +58,6 @@
     }
 
     function sendData(latitude, longitude) {
-
       var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
       apiEndpoint += "192.168.3.188/update";
 
@@ -66,10 +65,12 @@
       xhr.open("POST", apiEndpoint, true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log("Location data sent successfully");
-        } else {
-          console.error("Error sending location data");
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            console.log("Location data sent successfully");
+          } else {
+            console.error("Error sending location data", xhr.status, xhr.responseText);
+          }
         }
       };
       xhr.send(JSON.stringify({ latitude: latitude, longitude: longitude }));
