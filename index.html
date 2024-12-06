@@ -51,7 +51,7 @@
           document.getElementById('rawValue').innerText = rawValue;
 
           // Check for abnormal heart rate (e.g., heart rate below 40 or above 120 BPM)
-          if (heartRate > 120 || heartRate < 40) {
+          if (heartRate > 70 || heartRate < 40) {
             document.getElementById('alert').style.display = 'block';
             getLocationAndUpdateMap();  // Fetch location if heart rate is abnormal
           } else {
@@ -69,7 +69,7 @@
     }
 
     function sendData(latitude, longitude) {
-      const apiEndpoint = `https://192.168.3.188/update`;
+      const apiEndpoint = `https://your-server.com/heart-attack-location`; // Replace with your actual endpoint
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", apiEndpoint, true);
@@ -114,7 +114,7 @@
             .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
             .openPopup();
 
-          sendData(latitude, longitude);
+          sendData(latitude, longitude);  // Only send the location data when heart rate is abnormal
         }, function(error) {
           console.error("Error getting GPS location:", error);
         });
