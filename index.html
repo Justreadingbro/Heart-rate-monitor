@@ -5,29 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heart Rate Monitor with GPS</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
+
+    h1 {
+      font-size: 36px;
+      color: #2c3e50;
+      margin-top: 30px;
+    }
+
     #alert {
       display: none;
-      color: red;
-      font-size: 20px;
-      margin-bottom: 20px;
+      background-color: #f44336;
+      color: white;
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 18px;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      text-align: center;
     }
+
+    #heartRate, #rawValue {
+      font-size: 22px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
     #location {
-      margin-top: 20px;
+      margin-top: 30px;
       display: none;
+      text-align: left;
+      font-size: 18px;
     }
+
     #map {
-      margin-top: 20px;
       width: 100%;
       height: 400px;
-      display: none;
+      margin-top: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .data-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .data-container p {
+      font-size: 20px;
+      color: #34495e;
+    }
+
+    .button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      background-color: #2980b9;
+    }
+
+    a {
+      color: #3498db;
+      text-decoration: none;
     }
   </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Heart Rate Monitor with GPS</h1>
+    <div id="alert">
+      <strong>ALERT: Heart rate is abnormal!</strong>
+    </div>
+    <div class="data-container">
+      <p><strong>Heart Rate:</strong> <span id="heartRate">Loading...</span></p>
+      <p><strong>Raw Value:</strong> <span id="rawValue">Loading...</span></p>
+    </div>
+    <div id="location">
+      <h2>Your Current Location:</h2>
+      <p id="latitude"></p>
+      <p id="longitude"></p>
+      <a id="mapsLink" target="_blank" class="button">Open in OpenStreetMap</a>
+    </div>
+    <div id="map"></div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
     // Function to fetch and display heart rate data from ThingSpeak
@@ -65,11 +157,9 @@
 
     // Function to send the GPS location data to ESP32
     function sendData(latitude, longitude) {
-      // Check if the page is loaded over HTTPS or HTTP
       var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
       apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
 
-      // Send location data to the ESP32
       var xhr = new XMLHttpRequest();
       xhr.open("POST", apiEndpoint, true);
       xhr.setRequestHeader("Content-Type", "application/json");
@@ -106,7 +196,6 @@
             .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
             .openPopup();
 
-          // Send location data to ESP32
           sendData(latitude, longitude);
         }, function(error) {
           console.error("Error getting GPS location:", error);
@@ -122,20 +211,5 @@
       getLocationAndUpdateMap();
     };
   </script>
-</head>
-<body>
-  <h1>Heart Rate Monitor with GPS</h1>
-  <div id="alert">
-    <strong>ALERT: Heart rate is abnormal!</strong>
-  </div>
-  <p>Heart Rate: <span id="heartRate">Loading...</span></p>
-  <p>Raw Value: <span id="rawValue">Loading...</span></p>
-  <div id="location">
-    <h2>Your Location:</h2>
-    <p id="latitude"></p>
-    <p id="longitude"></p>
-    <a id="mapsLink" target="_blank">Open in OpenStreetMap</a>
-  </div>
-  <div id="map"></div>
 </body>
 </html>
