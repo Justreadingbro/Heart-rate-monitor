@@ -46,14 +46,17 @@
           const feeds = data.feeds[0];
           const heartRate = feeds.field1;
           const rawValue = feeds.field2;
-          
+
           document.getElementById('heartRate').innerText = heartRate + ' BPM';
           document.getElementById('rawValue').innerText = rawValue;
 
-          if (heartRate > 80 || heartRate < 50) {
+          // Check for abnormal heart rate (e.g., heart rate below 40 or above 120 BPM)
+          if (heartRate > 120 || heartRate < 40) {
             document.getElementById('alert').style.display = 'block';
+            getLocationAndUpdateMap();  // Fetch location if heart rate is abnormal
           } else {
             document.getElementById('alert').style.display = 'none';
+            document.getElementById('location').style.display = 'none';  // Hide location if heart rate is normal
           }
         })
         .catch(error => {
@@ -122,7 +125,6 @@
 
     window.onload = function() {
       updateData();
-      getLocationAndUpdateMap();
     };
   </script>
 </head>
