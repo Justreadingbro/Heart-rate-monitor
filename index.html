@@ -27,49 +27,13 @@
       height: 400px;
       display: none;
     }
-    .leaflet-overlay-pane svg {
-      -moz-user-select: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
   </style>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
   <script>
-    // Your Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDZc2AMcp4ECHqQt-P3ogsCv-bXKkM7L6U",
-      authDomain: "hrm-database-5d71a.firebaseapp.com",
-      databaseURL: "https://hrm-database-5d71a-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "hrm-database-5d71a",
-      storageBucket: "hrm-database-5d71a.firebasestorage.app",
-      messagingSenderId: "823589165331",
-      appId: "1:823589165331:web:720f8c7f9c1c9f1e0b22e6",
-      measurementId: "G-CP3DTXTMW2"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database(app);
-
-    // Function to send location data to Firebase Realtime Database
-    function sendLocationToFirebase(latitude, longitude) {
-      const locationRef = database.ref('heart_attack_location');
-      locationRef.set({
-        latitude: latitude,
-        longitude: longitude
-      }).then(() => {
-        console.log("Location data sent to Firebase");
-      }).catch((error) => {
-        console.error("Error sending location to Firebase:", error);
-      });
-    }
-
+    // Function to fetch and display heart rate data from ThingSpeak
     function updateData() {
-      const channelId = "2765312";
-      const apiKey = "WPQAF4KMIF5SNCGD";
+      const channelId = "2765312";  // Replace with your actual ThingSpeak Channel ID
+      const apiKey = "WPQAF4KMIF5SNCGD";  // Replace with your actual ThingSpeak Read API Key if needed
       const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=1`;
 
       fetch(url)
@@ -78,17 +42,16 @@
           const feeds = data.feeds[0];
           const heartRate = feeds.field1;
           const rawValue = feeds.field2;
-
+          
+          // Update heart rate and raw value on the page
           document.getElementById('heartRate').innerText = heartRate + ' BPM';
           document.getElementById('rawValue').innerText = rawValue;
 
-          // Check for abnormal heart rate (e.g., heart rate below 40 or above 120 BPM)
-          if (heartRate > 70 || heartRate < 40) {
-            document.getElementById('alert').style.display = 'block';
-            getLocationAndUpdateMap();  // Fetch location if heart rate is abnormal
+          // Display alert if heart rate is above 120 or below 50
+          if (heartRate > 120 || heartRate < 50) {
+            document.getElementById('alert').style.display = 'block';  // Show alert
           } else {
-            document.getElementById('alert').style.display = 'none';
-            document.getElementById('location').style.display = 'none';  // Hide location if heart rate is normal
+            document.getElementById('alert').style.display = 'none';  // Hide alert
           }
         })
         .catch(error => {
@@ -97,14 +60,35 @@
           document.getElementById('rawValue').innerText = 'Error';
         });
 
-      setTimeout(updateData, 5000);
+      setTimeout(updateData, 5000);  // Update every 5 seconds
     }
 
+    // Function to send the GPS location data to ESP32
+    function sendData(latitude, longitude) {
+      // Check if the page is loaded over HTTPS or HTTP
+      var apiEndpoint = window.location.protocol === 'https:' ? 'https://' : 'http://';
+      apiEndpoint += "192.168.3.188/update";  // Replace with your ESP32 IP address
+
+      // Send location data to the ESP32
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", apiEndpoint, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log("Location data sent successfully");
+        } else {
+          console.error("Error sending location data");
+        }
+      };
+      xhr.send(JSON.stringify({ latitude: latitude, longitude: longitude }));
+    }
+
+    // Function to get the GPS location and display it on the map
     function getLocationAndUpdateMap() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
+          var latitude = position.coords.latitude;
+          var longitude = position.coords.longitude;
 
           document.getElementById('latitude').textContent = `Latitude: ${latitude}`;
           document.getElementById('longitude').textContent = `Longitude: ${longitude}`;
@@ -115,15 +99,15 @@
           const map = document.getElementById('map');
           map.style.display = 'block';
           const leafletMap = L.map('map').setView([latitude, longitude], 13);
-         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(leafletMap);
           L.marker([latitude, longitude]).addTo(leafletMap)
             .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
             .openPopup();
 
-          sendLocationToFirebase(latitude, longitude);  // Send the location to Firebase
+          // Send location data to ESP32
+          sendData(latitude, longitude);
         }, function(error) {
           console.error("Error getting GPS location:", error);
         });
@@ -132,8 +116,10 @@
       }
     }
 
+    // Start updating data and sending location when the page loads
     window.onload = function() {
       updateData();
+      getLocationAndUpdateMap();
     };
   </script>
 </head>
